@@ -1560,6 +1560,16 @@ footer{margin-top:2.5rem;border-top:1px solid var(--line);padding-top:.9rem;colo
  });
 
  window.addEventListener('beforeprint',function(){exs.forEach(function(d){if(!d.hidden)d.open=true;});});
+ // a refresh can restore the controls' values, so seed the filter state from the DOM
+ // rather than assuming empty, or the dropdowns would disagree with what is shown
+ (function seed(){
+  var m={fsub:'sub',ftool:'tool',fsamr:'samr',feff:'eff',fros:'ros',fev:'ev'};
+  Object.keys(m).forEach(function(id){
+   var el=document.getElementById(id); if(el&&el.value)f[m[id]]=el.value;
+  });
+  var imp=document.getElementById('fimp'); if(imp&&imp.value)f.imp=Number(imp.value);
+  if(q&&q.value)f.q=q.value.trim().toLowerCase();
+ })();
  if(location.hash){openTo(location.hash.slice(1));}
  apply();
 })();

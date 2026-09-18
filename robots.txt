@@ -1,0 +1,4 @@
+# Internal staff CPD material for London Academy of Excellence Tottenham.
+# Please do not index.
+User-agent: *
+Disallow: /

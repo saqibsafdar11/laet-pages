@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LAET shared pages</title>
+<style>
+:root{
+  --navy:#28205B; --gold:#CCAC78; --gold-deep:#8F7233; --gold-soft:#F7F0E1;
+  --ground:#F4F3F7; --surface:#fff; --ink:#1A1733; --ink-2:#403B63; --muted:#6B6688;
+  --line:#DCDAE6; --shadow:0 1px 2px rgba(26,23,51,.05), 0 8px 22px rgba(26,23,51,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --navy:#9C93E4; --gold:#DFC58C; --gold-deep:#DFC58C; --gold-soft:#332E22;
+  --ground:#121028; --surface:#1B1836; --ink:#EDECF6; --ink-2:#CDC9E2; --muted:#A19CBD;
+  --line:#37335C; --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+     font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+h1,h2,h3{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+         font-weight:600;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(1.6rem,3.2vw,2.3rem)}
+header{background:var(--navy);color:#fff;border-bottom:3px solid var(--gold)}
+header .in{max-width:860px;margin:0 auto;padding:1.6rem 16px}
+header p{margin:.4rem 0 0;opacity:.85;font-size:.95rem}
+main{max-width:860px;margin:0 auto;padding:1.6rem 16px 4rem}
+.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:12px;
+      padding:1rem 1.15rem;margin:0 0 .85rem;box-shadow:var(--shadow);
+      text-decoration:none;color:inherit}
+.card:hover{border-color:var(--navy)}
+.card h3{margin-bottom:.25rem;color:var(--navy)}
+.card p{margin:0;color:var(--ink-2);font-size:.94rem}
+.card .meta{margin-top:.5rem;font-size:.78rem;color:var(--muted)}
+.note{background:var(--gold-soft);border:1px solid var(--gold);border-left-width:4px;
+      border-radius:8px;padding:.8rem 1rem;margin:1.4rem 0;font-size:.92rem}
+.note p{margin:0 0 .5rem} .note p:last-child{margin:0}
+footer{max-width:860px;margin:0 auto;padding:0 16px 3rem;color:var(--muted);font-size:.85rem}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>LAET shared pages</h1>
+  <p>Static pages for staff at London Academy of Excellence Tottenham.</p>
+</div></header>
+<main>
+
+  <a class="card" href="a-star-toolkit/">
+    <h3>A* Toolkit</h3>
+    <p>188 classroom workflows using Google education tools, each tied to an A* discriminator,
+       with separate routes for A, B and C students and a SEND adaptation. Includes exam-board
+       criteria for 22 subject-board combinations and a cited evidence base.</p>
+    <p class="meta">Instructional coaching &middot; filter by subject or tool &middot; works offline</p>
+  </a>
+
+  <div class="note">
+    <p><strong>This site is public.</strong> Anything published here can be read by anyone with
+       the link, and by anyone who finds it. <code>robots.txt</code> asks search engines not to
+       index it, which is a request and not a control.</p>
+    <p>Nothing containing pupil or staff personal data, marks, safeguarding information,
+       security audits or unpublished strategy belongs in this repository. Those stay in the
+       private repositories.</p>
+  </div>
+
+</main>
+<footer>
+  Built from <code>github.com/saqibsafdar11/laet-pages</code>. Each project lives in its own
+  folder and is served at that path.
+</footer>
+</body>
+</html>

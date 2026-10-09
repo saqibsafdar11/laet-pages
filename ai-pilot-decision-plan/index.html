@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Pilot Decision Plan</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+  [hidden] { display: none !important; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  /* Same visual language as "From idea to production": navy band, gold rule, numbered steps.
+     Layout: six steps down the page, from how a pilot is scored to who signs it off.
+     The four calls carry fixed colours everywhere: Scale green, Shrink amber, Pause blue, Kill red. */
+  :root {
+    --bg: #F3F3F7; --paper: #FFFFFF; --ink: #17172A; --ink-2: #4A4A62; --ink-3: #6E6E86; --rule: #DCDCE6; --grid: #ECECF2;
+    --band: #28205B; --band-deep: #1A1440; --band-ink: #FFFFFF; --band-ink-2: rgba(255,255,255,.76);
+    --brand: #28205B; --on-brand: #FFFFFF; --brand-ink: #28205B; --brand-mid: #47438A; --brand-soft: #E9E8F3;
+    --gold: #CCAC78; --gold-ink: #8A6E3E; --gold-soft: #F6F0E3; --on-gold: #1A1440;
+    --scale: #2E9E4F; --scale-ink: #1D6E36; --scale-soft: #DDF0E2; --scale-zone: rgba(46,158,79,.10);
+    --shrink: #E8A800; --shrink-ink: #7E5900; --shrink-soft: #FFF0C7; --shrink-zone: rgba(232,168,0,.12);
+    --pause: #3B7BE8; --pause-ink: #1A4FA8; --pause-soft: #DDE8FB; --pause-zone: rgba(59,123,232,.10);
+    --kill: #DD3B2F; --kill-ink: #A8261C; --kill-soft: #F9DFDC; --kill-zone: rgba(221,59,47,.08);
+    --font: 'Plus Jakarta Sans', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111024; --paper: #1A1932; --ink: #ECEBF6; --ink-2: #C0BFD4; --ink-3: #9796B0; --rule: #302F4D; --grid: #23223D;
+      --band: #1E1946; --band-deep: #161238; --band-ink: #FFFFFF; --band-ink-2: rgba(255,255,255,.74);
+      --brand: #B9B2E4; --on-brand: #17152E; --brand-ink: #CFCBF5; --brand-mid: #A59FE0; --brand-soft: #26244A;
+      --gold: #CCAC78; --gold-ink: #D9BE8E; --gold-soft: #2D2719; --on-gold: #1A1440;
+      --scale: #4CC673; --scale-ink: #8BDDA6; --scale-soft: #16301F; --scale-zone: rgba(76,198,115,.10);
+      --shrink: #F2C230; --shrink-ink: #F2CF6B; --shrink-soft: #33290F; --shrink-zone: rgba(242,194,48,.10);
+      --pause: #6EA0F5; --pause-ink: #A7C4F8; --pause-soft: #172848; --pause-zone: rgba(110,160,245,.10);
+      --kill: #F0685D; --kill-ink: #F5A39C; --kill-soft: #3A1B1B; --kill-zone: rgba(240,104,93,.09);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111024; --paper: #1A1932; --ink: #ECEBF6; --ink-2: #C0BFD4; --ink-3: #9796B0; --rule: #302F4D; --grid: #23223D;
+    --band: #1E1946; --band-deep: #161238; --band-ink: #FFFFFF; --band-ink-2: rgba(255,255,255,.74);
+    --brand: #B9B2E4; --on-brand: #17152E; --brand-ink: #CFCBF5; --brand-mid: #A59FE0; --brand-soft: #26244A;
+    --gold: #CCAC78; --gold-ink: #D9BE8E; --gold-soft: #2D2719; --on-gold: #1A1440;
+    --scale: #4CC673; --scale-ink: #8BDDA6; --scale-soft: #16301F; --scale-zone: rgba(76,198,115,.10);
+    --shrink: #F2C230; --shrink-ink: #F2CF6B; --shrink-soft: #33290F; --shrink-zone: rgba(242,194,48,.10);
+    --pause: #6EA0F5; --pause-ink: #A7C4F8; --pause-soft: #172848; --pause-zone: rgba(110,160,245,.10);
+    --kill: #F0685D; --kill-ink: #F5A39C; --kill-soft: #3A1B1B; --kill-zone: rgba(240,104,93,.09);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.5; padding-inline: 16px; padding-block: 0 40px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1400px; margin-inline: auto; }
+  h1, h2, h3, h4 { margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  ul, ol { margin: 0; padding: 0; list-style: none; }
+  b { font-weight: 700; }
+  a { color: var(--brand-ink); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 3px; }
+
+  /* band */
+  .band { background: var(--band); color: var(--band-ink); margin-inline: -16px; padding-inline: 16px; padding-block: 26px 22px; border-bottom: 5px solid var(--gold); }
+  .band .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: end; }
+  .band h1 { font-size: clamp(30px, 4vw, 42px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
+  .band .sub { margin-top: 8px; font-size: 16px; color: var(--band-ink-2); font-weight: 500; max-width: 62ch; }
+  .band .meta { text-align: right; font-size: 12.5px; color: var(--band-ink-2); line-height: 1.7; }
+  .band .meta b { display: block; color: var(--gold); font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+  .vchip { display: inline-block; background: var(--gold); color: var(--on-gold); font-weight: 800; font-size: 11.5px; padding: 1px 7px; border-radius: 3px; }
+
+  main.wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 34px; padding-top: 24px; }
+  main.wrap > * { min-width: 0; }
+  .sec-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 12px; }
+  .sec-title .n { flex: none; align-self: center; width: 28px; height: 28px; border-radius: 50%; background: var(--brand); color: var(--on-brand); font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+  .sec-title h2 { font-size: 20px; font-weight: 800; color: var(--brand-ink); letter-spacing: -0.01em; }
+  .sec-title .hint { font-size: 13.5px; color: var(--ink-3); max-width: 100ch; }
+  .panel { background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; }
+
+  /* call chips */
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; font-size: 11.5px; padding: 2px 8px; border-radius: 3px; line-height: 1.35; text-decoration: none; white-space: nowrap; }
+  .chip.c-scale { background: var(--scale-soft); color: var(--scale-ink); }
+  .chip.c-shrink { background: var(--shrink-soft); color: var(--shrink-ink); }
+  .chip.c-pause { background: var(--pause-soft); color: var(--pause-ink); }
+  .chip.c-kill { background: var(--kill-soft); color: var(--kill-ink); }
+  .chip.ghost { background: transparent; box-shadow: inset 0 0 0 1.5px currentColor; }
+  a.chip { font-family: var(--mono); font-weight: 600; font-size: 11.5px; }
+  a.chip:hover { filter: brightness(.96); text-decoration: underline; }
+
+  /* at a glance */
+  .glance { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px 22px; align-items: center; padding: 12px 16px; }
+  .tally { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tl { display: flex; align-items: baseline; gap: 7px; padding: 6px 12px; border-radius: 6px; min-width: 104px; }
+  .tl b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+  .tl span { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .t-scale { background: var(--scale-soft); color: var(--scale-ink); }
+  .t-shrink { background: var(--shrink-soft); color: var(--shrink-ink); }
+  .t-pause { background: var(--pause-soft); color: var(--pause-ink); }
+  .t-kill { background: var(--kill-soft); color: var(--kill-ink); }
+  .glance p { font-size: 13.5px; color: var(--ink-2); }
+  .glance p b { color: var(--ink); }
+
+  /* 1. questions */
+  .qs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, .9fr); gap: 10px; align-items: stretch; }
+  .q { background: var(--paper); border: 1px solid var(--rule); border-top: 4px solid var(--brand-mid); border-radius: 6px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .q .code { font-size: 11px; font-weight: 800; letter-spacing: .1em; color: var(--brand-mid); text-transform: uppercase; display: flex; justify-content: space-between; }
+  .q .code .tot { color: var(--gold-ink); letter-spacing: .04em; text-transform: none; font-weight: 700; }
+  .q h3 { font-size: 15px; font-weight: 700; line-height: 1.35; }
+  .q ol { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); margin-top: auto; }
+  .q ol li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px; align-items: baseline; }
+  .q ol li span:first-child { font-family: var(--mono); font-weight: 600; font-size: 12px; color: var(--ink-3); text-align: center; border-radius: 3px; background: var(--brand-soft); }
+  .q ol li:last-child span:first-child { background: var(--brand-mid); color: var(--paper); }
+  .rulecard { background: var(--gold-soft); border: 1px solid var(--rule); border-left: 3px solid var(--gold); border-radius: 6px; padding: 10px 12px; font-size: 13px; color: var(--ink-2); display: grid; gap: 8px; align-content: start; }
+  .rulecard h3 { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-ink); }
+  .rulecard b { color: var(--ink); }
+
+  /* 2. map and calls */
+  .formula { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; padding: 10px 14px; margin-bottom: 10px; font-size: 14px; }
+  .formula .eq { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .formula .eq b { color: var(--brand-ink); }
+  .formula .op { font-family: var(--mono); color: var(--ink-3); }
+  .formula .pill { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 3px; background: var(--brand-soft); color: var(--brand-ink); }
+  .formula .high { margin-left: auto; font-size: 13px; color: var(--ink-3); }
+  .formula .high b { color: var(--gold-ink); }
+  .callgrid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .mapcard { padding: 10px 12px 12px; }
+  .map { width: 100%; height: auto; display: block; font-family: var(--font); }
+  .map .z-kill { fill: var(--kill-zone); } .map .z-scale { fill: var(--scale-zone); } .map .z-shrink { fill: var(--shrink-zone); }
+  .map .grid { stroke: var(--grid); stroke-width: 1; }
+  .map .thr { stroke: var(--ink-3); stroke-width: 1.6; stroke-dasharray: 6 5; }
+  .map .tick { fill: var(--ink-3); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .map .axt { fill: var(--ink-2); font-size: 12px; font-weight: 600; }
+  .map .zl { font-size: 15px; font-weight: 800; letter-spacing: .12em; }
+  .map .zl-kill { fill: var(--kill-ink); } .map .zl-scale { fill: var(--scale-ink); } .map .zl-shrink { fill: var(--shrink-ink); }
+  .map .zs { fill: var(--ink-3); font-size: 11px; }
+  .map .dot { stroke: var(--paper); stroke-width: 2.5; }
+  .map .d-scale { fill: var(--scale); } .map .d-shrink { fill: var(--shrink); } .map .d-pause { fill: var(--pause); } .map .d-kill { fill: var(--kill); }
+  .map .pl { fill: var(--ink); font-family: var(--mono); font-size: 11px; font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
+  .map a { cursor: pointer; }
+  .map a:hover .dot, .map a:focus .dot { stroke: var(--ink); }
+  .map a.dim { opacity: .18; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); margin-top: 6px; padding-inline: 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .legend .sw { width: 16px; height: 11px; border-radius: 2px; border: 1px solid var(--rule); }
+  .legend .note { color: var(--ink-3); }
+
+  .calls { display: grid; gap: 8px; }
+  .call { background: var(--paper); border: 1px solid var(--rule); border-left: 5px solid var(--k); border-radius: 6px; padding: 9px 12px; display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 2px 12px; }
+  .call h3 { font-size: 15px; font-weight: 800; color: var(--kk); grid-row: span 3; }
+  .call .when { font-size: 12.5px; font-weight: 700; color: var(--ink); }
+  .call p { font-size: 12.8px; color: var(--ink-2); }
+  .call .stage { font-size: 12px; color: var(--ink-3); }
+  .call.over { background: var(--bg); }
+  .callsub { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+  .k-scale { --k: var(--scale); --kk: var(--scale-ink); } .k-shrink { --k: var(--shrink); --kk: var(--shrink-ink); }
+  .k-pause { --k: var(--pause); --kk: var(--pause-ink); } .k-kill { --k: var(--kill); --kk: var(--kill-ink); }
+  .k-red { --k: var(--kill); --kk: var(--kill-ink); }
+  .judgement { font-size: 12.8px; color: var(--ink-2); background: var(--brand-soft); border-radius: 6px; padding: 9px 12px; }
+  .judgement b { color: var(--brand-ink); }
+
+  /* 3. pilots */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .toolbar .lab { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-right: 4px; }
+  .fb { font: inherit; font-size: 12.5px; font-weight: 700; color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .fb span { font-variant-numeric: tabular-nums; color: var(--ink-3); font-weight: 600; }
+  .fb i { width: 9px; height: 9px; border-radius: 50%; }
+  .f-scale i { background: var(--scale); } .f-shrink i { background: var(--shrink); } .f-pause i { background: var(--pause); } .f-kill i { background: var(--kill); }
+  .fb.on { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+  .fb.on span { color: var(--on-brand); opacity: .8; }
+  .fb:disabled { opacity: .45; cursor: default; }
+  .pilots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+  .pilot { background: var(--paper); border: 1px solid var(--rule); border-top: 5px solid var(--k); border-radius: 6px; padding: 11px 13px 13px; display: flex; flex-direction: column; gap: 9px; min-width: 0; scroll-margin-top: 16px; }
+  .pilot:target { box-shadow: 0 0 0 3px var(--gold); }
+  .pilot header { display: grid; gap: 4px; }
+  .ph { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .pid { font-family: var(--mono); font-weight: 600; font-size: 12px; color: var(--brand-mid); }
+  .pstage { font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+  .pilot h3 { font-size: 15.5px; font-weight: 700; line-height: 1.3; }
+  .callrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .callrow .chip { font-size: 12px; }
+  .callrow .rulewas { display: inline-flex; align-items: center; gap: 6px; }
+  .callrow .arrow { color: var(--ink-3); font-weight: 700; }
+  .scores { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .m { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 5px; background: var(--bg); border-radius: 4px; padding: 4px 6px; }
+  .m .mk { font-size: 10.5px; font-weight: 800; color: var(--ink-3); letter-spacing: .04em; }
+  .m b { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .segs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
+  .segs i { height: 6px; border-radius: 1px; background: var(--rule); }
+  .segs i.on { background: var(--brand-mid); }
+  .m.low b { color: var(--kill-ink); }
+  .m.low .segs i.on { background: var(--kill); }
+  .totals { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  .totals b { font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .red { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--kill); padding: 1px 7px; border-radius: 3px; }
+  .why { font-size: 12.5px; color: var(--ink-2); background: var(--brand-soft); border-radius: 4px; padding: 6px 9px; }
+  .why b { color: var(--brand-ink); }
+  .pilot dl { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px 8px; margin: 0; font-size: 12.7px; border-top: 1px solid var(--rule); padding-top: 9px; }
+  .pilot dt { color: var(--ink-3); font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: .06em; padding-top: 2px; }
+  .pilot dd { margin: 0; color: var(--ink-2); min-width: 0; }
+  .pilot dd .by { display: block; font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .pilot dd .by b { color: var(--ink); }
+  .notyet { margin-top: 10px; font-size: 12.8px; color: var(--ink-3); }
+  .notyet b { color: var(--ink-2); }
+  .empty { grid-column: 1 / -1; padding: 18px; text-align: center; color: var(--ink-3); }
+
+  /* 4. timeline */
+  .timeline { display: grid; gap: 0; }
+  .tday { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; padding: 10px 14px; border-top: 1px solid var(--rule); }
+  .tday:first-child { border-top: none; }
+  .tday.next { background: var(--gold-soft); border-radius: 8px 8px 0 0; }
+  .tdate { display: flex; flex-direction: column; line-height: 1.2; }
+  .tdate b { font-size: 17px; font-weight: 800; color: var(--brand-ink); font-variant-numeric: tabular-nums; }
+  .tdate span { font-size: 12px; color: var(--ink-3); }
+  .tday ul { display: grid; gap: 6px; }
+  .tday li { display: grid; grid-template-columns: 58px 44px minmax(0, 1fr); gap: 8px; align-items: baseline; font-size: 13px; color: var(--ink-2); }
+  .kind { font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .kind.action { color: var(--gold-ink); }
+  .tday li .chip { justify-self: start; }
+  .nexttag { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; background: var(--gold); color: var(--on-gold); padding: 1px 6px; border-radius: 3px; align-self: flex-start; }
+
+  /* 5. stages */
+  .scroll { overflow-x: auto; border-radius: 8px; border: 1px solid var(--rule); background: var(--paper); }
+  .stages { display: grid; grid-template-columns: repeat(8, minmax(138px, 1fr)); min-width: 1150px; }
+  .stg { border-left: 1px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+  .stg:first-child { border-left: none; }
+  .sh { background: var(--band); color: var(--band-ink); padding: 10px 10px 11px; display: flex; flex-direction: column; gap: 1px; border-left: 1px solid rgba(255,255,255,.12); margin-left: -1px; }
+  .stg:first-child .sh { margin-left: 0; border-left: none; }
+  .sn { font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: .06em; }
+  .sname { font-size: 16px; font-weight: 800; letter-spacing: -0.01em; }
+  .sph { font-size: 11.5px; color: rgba(255,255,255,.72); }
+  .stg.gate .sh { background: var(--gold); color: var(--on-gold); }
+  .stg.gate .sn, .stg.gate .sph { color: var(--on-gold); }
+  .stg.gate .sph { opacity: .8; }
+  .sr { padding: 9px 10px 0; display: grid; gap: 3px; }
+  .rs { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+  .rs.yes { color: var(--gold-ink); }
+  .sr .when { font-size: 12px; color: var(--ink-2); }
+  .does { padding: 8px 10px 0; font-size: 12.6px; color: var(--ink-2); }
+  .who { padding: 8px 10px 0; font-size: 12.3px; font-weight: 600; color: var(--ink); }
+  .here { margin-top: auto; padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; border-top: 1px solid var(--rule); margin-top: 10px; background: var(--bg); min-height: 44px; align-items: center; }
+  .here .none { font-size: 11.5px; color: var(--ink-3); }
+  .outside { margin-top: 10px; padding: 10px 14px; font-size: 13px; color: var(--ink-2); }
+  .outside b { color: var(--ink); }
+
+  /* 6. owners */
+  .owners { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.25fr); gap: 10px; align-items: start; }
+  .forum { background: var(--paper); border: 1px solid var(--rule); border-left: 3px solid var(--gold); border-radius: 6px; padding: 10px 12px; display: grid; gap: 5px; min-width: 0; }
+  .forum h3 { font-size: 14.5px; font-weight: 700; color: var(--brand-ink); }
+  .forum p { font-size: 12.6px; color: var(--ink-2); }
+  .forum .ids { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sponsors { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; min-width: 0; }
+  .sponsors h3 { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-ink); margin-bottom: 6px; }
+  .sponsors ul { display: grid; gap: 5px; }
+  .sponsors li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 12.8px; color: var(--ink-2); }
+  .sponsors li b { color: var(--ink); }
+  .sponsors .ids { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+  .steps { margin-top: 12px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; counter-reset: s; }
+  .steps li { padding: 10px 12px; border-left: 1px solid var(--rule); font-size: 12.6px; color: var(--ink-2); counter-increment: s; min-width: 0; }
+  .steps li:first-child { border-left: none; }
+  .steps li::before { content: counter(s); display: block; font-weight: 800; color: var(--gold-ink); font-size: 13px; margin-bottom: 2px; }
+  .steps b { color: var(--ink); }
+
+  /* footer */
+  .rules { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 10px 16px; align-items: start; background: var(--paper); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; font-size: 13.4px; color: var(--ink-2); }
+  .rules .k { background: var(--band); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; padding: 4px 9px; border-radius: 3px; white-space: nowrap; align-self: center; }
+  .rules b { color: var(--ink); }
+  .rules .num { font-weight: 800; color: var(--gold-ink); margin-right: 4px; }
+  .src { margin-top: 10px; font-size: 12.3px; color: var(--ink-3); display: grid; gap: 3px; }
+
+  @media (max-width: 1240px) {
+    .qs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .rulecard { grid-column: 1 / -1; }
+    .callgrid { grid-template-columns: minmax(0, 1fr); }
+    .pilots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .owners { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .sponsors { grid-column: 1 / -1; }
+    .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .steps li:nth-child(4) { border-left: none; }
+    .steps li:nth-child(n+4) { border-top: 1px solid var(--rule); }
+    .rules { grid-template-columns: minmax(0, 1fr); }
+    .rules .k { justify-self: start; }
+  }
+  @media (max-width: 720px) {
+    .band .wrap { grid-template-columns: minmax(0, 1fr); }
+    .band .meta { text-align: left; }
+    .glance { grid-template-columns: minmax(0, 1fr); }
+    .tl { min-width: 0; flex: 1 1 40%; }
+    .qs, .pilots, .owners, .steps { grid-template-columns: minmax(0, 1fr); }
+    .steps li { border-left: none; }
+    .steps li + li { border-top: 1px solid var(--rule); }
+    .formula .high { margin-left: 0; }
+    .call { grid-template-columns: minmax(0, 1fr); }
+    .call h3 { grid-row: auto; }
+    .tday { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+    .tdate { flex-direction: row; gap: 6px; align-items: baseline; }
+    .tday li { grid-template-columns: 52px 40px minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pilot, .map a { transition: opacity .15s ease; }
+  }
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="wrap">
+    <div>
+      <h1>AI pilot decision plan</h1>
+      <div class="sub">How every AI pilot at LAET is scored, which call it gets, and what has to happen next</div>
+    </div>
+    <div class="meta">
+      <b>London Academy of Excellence Tottenham</b>
+      2026/27 <span class="vchip">Snapshot · 9 Oct 2026</span><br>
+      Owner: Digital Lead
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="panel glance" aria-label="Calls at a glance">
+    <div class="tally"><div class="tl t-scale"><b>0</b><span>Scale</span></div><div class="tl t-shrink"><b>7</b><span>Shrink</span></div><div class="tl t-pause"><b>2</b><span>Pause</span></div><div class="tl t-kill"><b>0</b><span>Kill</span></div></div>
+    <p>Nine pilots, nine proposed calls. <b>None is ready to scale yet.</b> Seven run on a narrower scope while evidence is gathered, and two are on hold until a named blocker clears. First deadline: <b>23 October</b>.</p>
+  </div>
+
+  <section aria-labelledby="s1">
+    <div class="sec-title"><span class="n">1</span><h2 id="s1">Score four questions</h2><span class="hint">Each question is scored 0 to 5 from evidence. The evidence and its source sit on the pilot's own tab, so anyone can check a score.</span></div>
+    <div class="qs">
+      <article class="q">
+        <span class="code">Value <span class="tot">→ value for money</span></span>
+        <h3>What gets better than today, and do people use it?</h3>
+        <ol><li><span>1</span><span>No better than today, or rarely used</span></li><li><span>3</span><span>Some measured gain; some people use it</span></li><li><span>5</span><span>Large measured gain; used every week</span></li></ol>
+      </article>
+      <article class="q">
+        <span class="code">Cost <span class="tot">→ value for money</span></span>
+        <h3>Is the full cost worth paying, including checking and rework?</h3>
+        <ol><li><span>1</span><span>Costs more than it saves</span></li><li><span>3</span><span>Roughly breaks even</span></li><li><span>5</span><span>Clearly cheaper per task, all costs counted</span></li></ol>
+      </article>
+      <article class="q">
+        <span class="code">Quality <span class="tot">→ readiness</span></span>
+        <h3>Is the output good enough, checked by someone independent?</h3>
+        <ol><li><span>1</span><span>Below the standard</span></li><li><span>3</span><span>Meets the standard on some tasks</span></li><li><span>5</span><span>Meets the standard on an independent check</span></li></ol>
+      </article>
+      <article class="q">
+        <span class="code">Risk <span class="tot">→ readiness</span></span>
+        <h3>If it goes wrong, is the harm small, and can someone stop it?</h3>
+        <ol><li><span>1</span><span>Serious harm possible; nobody can stop it</span></li><li><span>3</span><span>Controls exist but are untested</span></li><li><span>5</span><span>Tested controls; a named owner can stop it</span></li></ol>
+      </article>
+      <aside class="rulecard">
+        <h3>How to score</h3>
+        <p><b>5 is always the good end</b>, so a high Risk score means low risk.</p>
+        <p><b>No evidence scores 0.</b> Use 2 or 4 when a pilot sits between two descriptions.</p>
+        <p>Scores are first drafts by the Digital Lead for SLT to challenge.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section aria-labelledby="s2">
+    <div class="sec-title"><span class="n">2</span><h2 id="s2">Add two totals and read the call</h2><span class="hint">The two totals place a pilot on the map, and the zone it lands in is the rule-based call. The proposed call is the decision people make, and the dot shows it in its colour.</span></div>
+    <div class="panel formula">
+      <span class="eq"><b>Value for money</b><span class="op">=</span><span class="pill">Value</span><span class="op">+</span><span class="pill">Cost</span></span>
+      <span class="eq"><b>Readiness to scale</b><span class="op">=</span><span class="pill">Quality</span><span class="op">+</span><span class="pill">Risk</span></span>
+      <span class="high">Each runs 0 to 10. <b>6 or more is high.</b></span>
+    </div>
+    <div class="callgrid">
+      <figure class="panel mapcard" style="margin:0">
+        <svg class="map" viewBox="0 0 560 470" role="img" aria-labelledby="mapT mapD">
+<title id="mapT">Pilot map</title><desc id="mapD">Each pilot plotted by value for money (across) and readiness to scale (up), coloured by its proposed call.</desc>
+<rect class="z-kill" x="74" y="30" width="258.4" height="384"/>
+<rect class="z-scale" x="332.4" y="30" width="207.6" height="171.1"/>
+<rect class="z-shrink" x="332.4" y="201.1" width="207.6" height="212.9"/>
+<line class="grid" x1="99.4" y1="30" x2="99.4" y2="414"/>
+<line class="grid" x1="74" y1="393.1" x2="540" y2="393.1"/>
+<line class="grid" x1="141.8" y1="30" x2="141.8" y2="414"/>
+<line class="grid" x1="74" y1="358.1" x2="540" y2="358.1"/>
+<line class="grid" x1="184.1" y1="30" x2="184.1" y2="414"/>
+<line class="grid" x1="74" y1="323.2" x2="540" y2="323.2"/>
+<line class="grid" x1="226.5" y1="30" x2="226.5" y2="414"/>
+<line class="grid" x1="74" y1="288.3" x2="540" y2="288.3"/>
+<line class="grid" x1="268.9" y1="30" x2="268.9" y2="414"/>
+<line class="grid" x1="74" y1="253.4" x2="540" y2="253.4"/>
+<line class="grid" x1="311.2" y1="30" x2="311.2" y2="414"/>
+<line class="grid" x1="74" y1="218.5" x2="540" y2="218.5"/>
+<line class="grid" x1="353.6" y1="30" x2="353.6" y2="414"/>
+<line class="grid" x1="74" y1="183.6" x2="540" y2="183.6"/>
+<line class="grid" x1="396.0" y1="30" x2="396.0" y2="414"/>
+<line class="grid" x1="74" y1="148.7" x2="540" y2="148.7"/>
+<line class="grid" x1="438.3" y1="30" x2="438.3" y2="414"/>
+<line class="grid" x1="74" y1="113.8" x2="540" y2="113.8"/>
+<line class="grid" x1="480.7" y1="30" x2="480.7" y2="414"/>
+<line class="grid" x1="74" y1="78.9" x2="540" y2="78.9"/>
+<line class="grid" x1="523.1" y1="30" x2="523.1" y2="414"/>
+<line class="grid" x1="74" y1="44.0" x2="540" y2="44.0"/>
+<text class="tick" x="99.4" y="430" text-anchor="middle">0</text>
+<text class="tick" x="66" y="397.1" text-anchor="end">0</text>
+<text class="tick" x="184.1" y="430" text-anchor="middle">2</text>
+<text class="tick" x="66" y="327.2" text-anchor="end">2</text>
+<text class="tick" x="268.9" y="430" text-anchor="middle">4</text>
+<text class="tick" x="66" y="257.4" text-anchor="end">4</text>
+<text class="tick" x="353.6" y="430" text-anchor="middle">6</text>
+<text class="tick" x="66" y="187.6" text-anchor="end">6</text>
+<text class="tick" x="438.3" y="430" text-anchor="middle">8</text>
+<text class="tick" x="66" y="117.8" text-anchor="end">8</text>
+<text class="tick" x="523.1" y="430" text-anchor="middle">10</text>
+<text class="tick" x="66" y="48.0" text-anchor="end">10</text>
+<line class="thr" x1="332.4" y1="30" x2="332.4" y2="414"/>
+<line class="thr" x1="74" y1="201.1" x2="540" y2="201.1"/>
+<text class="axt" x="307" y="456" text-anchor="middle">Value for money (Value + Cost), 0 to 10</text>
+<text class="axt" transform="translate(18 222) rotate(-90)" text-anchor="middle">Readiness to scale (Quality + Risk), 0 to 10</text>
+<text class="zl zl-kill" x="203" y="56" text-anchor="middle">KILL</text>
+<text class="zs" x="203" y="72" text-anchor="middle">value for money 5 or less</text>
+<text class="zl zl-scale" x="436" y="56" text-anchor="middle">SCALE</text>
+<text class="zs" x="436" y="72" text-anchor="middle">both totals 6 or more</text>
+<text class="zl zl-shrink" x="436" y="388" text-anchor="middle">SHRINK</text>
+<text class="zs" x="436" y="404" text-anchor="middle">readiness 5 or less</text>
+<a href="#p01" class="pt pt-p01" data-calls="shrink"><title>P01 AI Marking app: Shrink (value for money 7, readiness 5)</title><circle class="dot d-shrink" cx="396.0" cy="218.5" r="8.5"/><text class="pl" x="407.5" y="222.5">P01</text></a>
+<a href="#p02" class="pt pt-p02" data-calls="shrink"><title>P02 Staff dashboard, LEA assistant and Governors&#x27; report: Shrink (value for money 6, readiness 3)</title><circle class="dot d-shrink" cx="353.6" cy="288.3" r="8.5"/><text class="pl" x="365.1" y="292.3">P02</text></a>
+<a href="#p03" class="pt pt-p03" data-calls="pause"><title>P03 UCAS reference app: Pause (value for money 2, readiness 2)</title><circle class="dot d-pause" cx="184.1" cy="323.2" r="8.5"/><text class="pl" x="195.6" y="327.2">P03</text></a>
+<a href="#p04" class="pt pt-p04" data-calls="pause"><title>P04 Trips optimisation: Pause (value for money 0, readiness 0)</title><circle class="dot d-pause" cx="99.4" cy="393.1" r="8.5"/><text class="pl" x="110.9" y="397.1">P04</text></a>
+<a href="#p05" class="pt pt-p05 pt-p06" data-calls="shrink shrink"><title>P05 Instructional coaching: EdTech and AI (TPACK and SAMR): Shrink; P06 4D AI framework for staff: Shrink (value for money 5, readiness 6)</title><circle class="dot d-shrink" cx="311.2" cy="183.6" r="8.5"/><text class="pl" x="322.7" y="187.6">P05, P06</text></a>
+<a href="#p07" class="pt pt-p07" data-calls="shrink"><title>P07 Staff-built (vibe-coded) apps: Shrink (value for money 5, readiness 2)</title><circle class="dot d-shrink" cx="311.2" cy="323.2" r="8.5"/><text class="pl" x="322.7" y="327.2">P07</text></a>
+<a href="#p08" class="pt pt-p08" data-calls="shrink"><title>P08 Student AI tools and 4D framework: Shrink (value for money 6, readiness 5)</title><circle class="dot d-shrink" cx="353.6" cy="218.5" r="8.5"/><text class="pl" x="365.1" y="222.5">P08</text></a>
+<a href="#p09" class="pt pt-p09" data-calls="shrink"><title>P09 A* Toolkit: EdTech tools for staff, mapped to SAMR, TPACK and Rosenshine: Shrink (value for money 5, readiness 5)</title><circle class="dot d-shrink" cx="311.2" cy="218.5" r="8.5"/><text class="pl" x="322.7" y="222.5">P09</text></a>
+</svg>
+        <figcaption class="legend">
+          <span><i style="background:var(--scale)"></i>Scale</span>
+          <span><i style="background:var(--shrink)"></i>Shrink</span>
+          <span><i style="background:var(--pause)"></i>Pause</span>
+          <span><i style="background:var(--kill)"></i>Kill</span>
+          <span class="note">Dot = proposed call. Shaded zone = rule-based call. Select a dot to jump to the pilot.</span>
+        </figcaption>
+      </figure>
+      <div class="calls">
+        <div class="callsub">Set by the zone</div>
+        <div class="call k-scale"><h3>Scale</h3><span class="when">Value for money 6+ and readiness 6+</span><p>Expand only the tasks and users the evidence supports, with a review date and a stop rule.</p><span class="stage">Moves to the next stage or the next tier.</span></div>
+        <div class="call k-shrink"><h3>Shrink</h3><span class="when">Value for money 6+, readiness 5 or less</span><p>Cut back tasks, users or authority. Run a bounded test of what is still uncertain.</p><span class="stage">Stays at its stage with a narrower scope or tier.</span></div>
+        <div class="call k-kill"><h3>Kill</h3><span class="when">Value for money 5 or less</span><p>End this proposal. Name who closes it and keep what was learned.</p><span class="stage">Goes to Retire.</span></div>
+        <div class="callsub">Overrides</div>
+        <div class="call over k-pause"><h3>Pause</h3><span class="when">A named blocker must clear first</span><p>Hold use until one blocker clears: a legal or safeguarding gate, an unsigned DPIA, missing evidence, or no capacity. Name an owner and a restart date, then re-score.</p><span class="stage">Holds at its stage. Pause is a hold, so it has no zone.</span></div>
+        <div class="call over k-red"><h3>Red card</h3><span class="when">Quality or Risk at 0 or 1</span><p>No Scale, whatever the total.</p></div>
+        <p class="judgement"><b>Rule and judgement.</b> The rule-based call is a formula. The proposed call is a judgement; when the two differ, the pilot says why.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <div class="sec-title"><span class="n">3</span><h2 id="s3">Where each pilot stands</h2><span class="hint">Each card shows the four scores, the two totals, the call and when it is next due. The scope, next action and stop rule for each pilot are kept in the school's internal decision sheet.</span></div>
+    <div class="toolbar" role="group" aria-label="Filter pilots by proposed call"><span class="lab">Show</span><button type="button" class="fb on" data-f="all" aria-pressed="true">All <span>9</span></button><button type="button" class="fb f-scale" data-f="scale" aria-pressed="false" disabled><i></i>Scale <span>0</span></button><button type="button" class="fb f-shrink" data-f="shrink" aria-pressed="false"><i></i>Shrink <span>7</span></button><button type="button" class="fb f-pause" data-f="pause" aria-pressed="false"><i></i>Pause <span>2</span></button><button type="button" class="fb f-kill" data-f="kill" aria-pressed="false" disabled><i></i>Kill <span>0</span></button></div>
+    <div class="pilots" id="pilotgrid">
+<article class="pilot" id="p01" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P01</span><span class="pstage">Production, six staff</span></div>
+    <h3>AI Marking app</h3>
+    <div class="callrow"><span class="chip c-shrink">Shrink</span><span class="same">matches the rule</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>7</b></span><span>Readiness <b>5</b></span></div>
+  
+  <dl>
+    <dt>Next due</dt><dd>27 Nov 2026</dd>
+    <dt>Review</dt><dd>12 Feb 2027 · Academic Board</dd>
+    <dt>Sponsor</dt><dd>Deputy Headteacher (Academic)</dd>
+  </dl>
+</article>
+<article class="pilot" id="p02" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P02</span><span class="pstage">Live</span></div>
+    <h3>Staff dashboard, LEA assistant and Governors&#x27; report</h3>
+    <div class="callrow"><span class="chip c-shrink">Shrink</span><span class="same">matches the rule</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m low"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>6</b></span><span>Readiness <b>3</b></span><span class="red" title="Quality or Risk at 0 or 1: no Scale, whatever the total">Red card</span></div>
+  
+  <dl>
+    <dt>Next due</dt><dd>11 Dec 2026</dd>
+    <dt>Review</dt><dd>29 Jan 2027 · AI Steering Group</dd>
+    <dt>Sponsor</dt><dd>Deputy Headteacher (Pastoral)</dd>
+  </dl>
+</article>
+<article class="pilot" id="p03" data-call="pause" style="--k:var(--pause)">
+  <header>
+    <div class="ph"><span class="pid">P03</span><span class="pstage">Pilot, live since September 2026</span></div>
+    <h3>UCAS reference app</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-pause">Pause</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m low"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>0</b></div><div class="m low"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div><div class="m low"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>2</b></span><span>Readiness <b>2</b></span><span class="red" title="Quality or Risk at 0 or 1: no Scale, whatever the total">Red card</span></div>
+  <p class="why"><b>Why not the rule:</b> The rule reads Kill because evidence has not been collected yet. The pilot already has a defined test (its first 30 references), so it holds until a named blocker clears, then is re-scored.</p>
+  <dl>
+    <dt>Next due</dt><dd>23 Oct 2026</dd>
+    <dt>Review</dt><dd>27 Nov 2026 · AI Steering Group</dd>
+    <dt>Sponsor</dt><dd>Assistant Headteacher (Pastoral)</dd>
+  </dl>
+</article>
+<article class="pilot" id="p04" data-call="pause" style="--k:var(--pause)">
+  <header>
+    <div class="ph"><span class="pid">P04</span><span class="pstage">Idea</span></div>
+    <h3>Trips optimisation</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-pause">Pause</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m low"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>0</b></div><div class="m low"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>0</b></div><div class="m low"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>0</b></div><div class="m low"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class=""></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>0</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>0</b></span><span>Readiness <b>0</b></span><span class="red" title="Quality or Risk at 0 or 1: no Scale, whatever the total">Red card</span></div>
+  <p class="why"><b>Why not the rule:</b> No pilot has run, so the rule reads Kill. Pause until a pilot card exists with a scope, a measure and a stop rule.</p>
+  <dl>
+    <dt>Next due</dt><dd>27 Nov 2026</dd>
+    <dt>Review</dt><dd>29 Jan 2027 · AI Steering Group</dd>
+    <dt>Sponsor</dt><dd>Business Director</dd>
+  </dl>
+</article>
+<article class="pilot" id="p05" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P05</span><span class="pstage">Built, not yet in use</span></div>
+    <h3>Instructional coaching: EdTech and AI (TPACK and SAMR)</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-shrink">Shrink</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m low"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>5</b></span><span>Readiness <b>6</b></span></div>
+  <p class="why"><b>Why not the rule:</b> The rule reads Kill because there is no usage evidence yet. Cost and risk are low, so a bounded test with two departments is cheaper than stopping.</p>
+  <dl>
+    <dt>Next due</dt><dd>11 Dec 2026</dd>
+    <dt>Review</dt><dd>12 Feb 2027 · Academic Board</dd>
+    <dt>Sponsor</dt><dd>Deputy Headteacher (Academic)</dd>
+  </dl>
+</article>
+<article class="pilot" id="p06" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P06</span><span class="pstage">Baseline done</span></div>
+    <h3>4D AI framework for staff</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-shrink">Shrink</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>5</b></span><span>Readiness <b>6</b></span></div>
+  <p class="why"><b>Why not the rule:</b> The rule reads Kill on value for money because delivery has not started. Run the shared core first and measure it before wider rollout.</p>
+  <dl>
+    <dt>Next due</dt><dd>11 Dec 2026</dd>
+    <dt>Review</dt><dd>26 Mar 2027 · Academic Board</dd>
+    <dt>Sponsor</dt><dd>Headteacher</dd>
+  </dl>
+</article>
+<article class="pilot" id="p07" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P07</span><span class="pstage">Sandbox</span></div>
+    <h3>Staff-built (vibe-coded) apps</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-shrink">Shrink</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div><div class="m low"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div><div class="m low"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>5</b></span><span>Readiness <b>2</b></span><span class="red" title="Quality or Risk at 0 or 1: no Scale, whatever the total">Red card</span></div>
+  <p class="why"><b>Why not the rule:</b> The rule reads Kill, but the value of staff building is part of the strategy. Keep building on made-up data inside the school&#x27;s sandbox while evidence is gathered.</p>
+  <dl>
+    <dt>Next due</dt><dd>27 Nov 2026</dd>
+    <dt>Review</dt><dd>29 Jan 2027 · AI Steering Group</dd>
+    <dt>Sponsor</dt><dd>Business Director</dd>
+  </dl>
+</article>
+<article class="pilot" id="p08" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P08</span><span class="pstage">Running, Autumn 1</span></div>
+    <h3>Student AI tools and 4D framework</h3>
+    <div class="callrow"><span class="chip c-shrink">Shrink</span><span class="same">matches the rule</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>6</b></span><span>Readiness <b>5</b></span></div>
+  
+  <dl>
+    <dt>Next due</dt><dd>27 Nov 2026</dd>
+    <dt>Review</dt><dd>12 Feb 2027 · Academic Board</dd>
+    <dt>Sponsor</dt><dd>Assistant Headteacher (Student Engagement)</dd>
+  </dl>
+</article>
+<article class="pilot" id="p09" data-call="shrink" style="--k:var(--shrink)">
+  <header>
+    <div class="ph"><span class="pid">P09</span><span class="pstage">Built, not yet released to staff</span></div>
+    <h3>A* Toolkit: EdTech tools for staff, mapped to SAMR, TPACK and Rosenshine</h3>
+    <div class="callrow"><span class="rulewas">Rule says <span class="chip ghost c-kill">Kill</span></span><span class="arrow" aria-hidden="true">→</span><span class="chip c-shrink">Shrink</span></div>
+  </header>
+  <div class="scores" aria-label="Scores out of 5">
+    <div class="m low"><span class="mk" title="Value">V</span><span class="segs" aria-hidden="true"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></span><b>1</b></div><div class="m"><span class="mk" title="Cost">C</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><b>4</b></div><div class="m"><span class="mk" title="Quality">Q</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><b>2</b></div><div class="m"><span class="mk" title="Risk">R</span><span class="segs" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><b>3</b></div>
+  </div>
+  <div class="totals"><span>Value for money <b>5</b></span><span>Readiness <b>5</b></span></div>
+  <p class="why"><b>Why not the rule:</b> The rule reads Kill because staff have not used it yet. It costs nothing to run and keeps pupil data out, so a bounded trial in two departments is the cheaper way to find out.</p>
+  <dl>
+    <dt>Next due</dt><dd>11 Dec 2026</dd>
+    <dt>Review</dt><dd>12 Feb 2027 · Academic Board</dd>
+    <dt>Sponsor</dt><dd>Deputy Headteacher (Academic)</dd>
+  </dl>
+</article>
+      <p class="empty" id="emptymsg" hidden>No pilots have this call.</p>
+    </div>
+    <p class="notyet"><b>Not yet a pilot:</b> F1 Read-only data agent. A future deliverable that needs the AI-safe data layer first.</p>
+  </section>
+
+  <section aria-labelledby="s4">
+    <div class="sec-title"><span class="n">4</span><h2 id="s4">What is due, and when</h2><span class="hint">Every next-action deadline and review date in date order. Dates are proposals until they are matched to real meeting dates.</span></div>
+    <div class="panel timeline">
+<div class="tday next"><div class="tdate"><b>23 Oct</b><span>2026</span><span class="nexttag">Next up</span></div><ul><li><span class="kind action">Action</span><a href="#p03" class="chip c-pause">P03</a><span class="what">Next action due</span></li></ul></div>
+<div class="tday"><div class="tdate"><b>27 Nov</b><span>2026</span></div><ul><li><span class="kind action">Action</span><a href="#p01" class="chip c-shrink">P01</a><span class="what">Next action due</span></li><li><span class="kind review">Review</span><a href="#p03" class="chip c-pause">P03</a><span class="what">Re-score and confirm the call at AI Steering Group</span></li><li><span class="kind action">Action</span><a href="#p04" class="chip c-pause">P04</a><span class="what">Next action due</span></li><li><span class="kind action">Action</span><a href="#p07" class="chip c-shrink">P07</a><span class="what">Next action due</span></li><li><span class="kind action">Action</span><a href="#p08" class="chip c-shrink">P08</a><span class="what">Next action due</span></li></ul></div>
+<div class="tday"><div class="tdate"><b>11 Dec</b><span>2026</span></div><ul><li><span class="kind action">Action</span><a href="#p02" class="chip c-shrink">P02</a><span class="what">Next action due</span></li><li><span class="kind action">Action</span><a href="#p05" class="chip c-shrink">P05</a><span class="what">Next action due</span></li><li><span class="kind action">Action</span><a href="#p06" class="chip c-shrink">P06</a><span class="what">Next action due</span></li><li><span class="kind action">Action</span><a href="#p09" class="chip c-shrink">P09</a><span class="what">Next action due</span></li></ul></div>
+<div class="tday"><div class="tdate"><b>29 Jan</b><span>2027</span></div><ul><li><span class="kind review">Review</span><a href="#p02" class="chip c-shrink">P02</a><span class="what">Re-score and confirm the call at AI Steering Group</span></li><li><span class="kind review">Review</span><a href="#p04" class="chip c-pause">P04</a><span class="what">Re-score and confirm the call at AI Steering Group</span></li><li><span class="kind review">Review</span><a href="#p07" class="chip c-shrink">P07</a><span class="what">Re-score and confirm the call at AI Steering Group</span></li></ul></div>
+<div class="tday"><div class="tdate"><b>12 Feb</b><span>2027</span></div><ul><li><span class="kind review">Review</span><a href="#p01" class="chip c-shrink">P01</a><span class="what">Re-score and confirm the call at Academic Board</span></li><li><span class="kind review">Review</span><a href="#p05" class="chip c-shrink">P05</a><span class="what">Re-score and confirm the call at Academic Board</span></li><li><span class="kind review">Review</span><a href="#p08" class="chip c-shrink">P08</a><span class="what">Re-score and confirm the call at Academic Board</span></li><li><span class="kind review">Review</span><a href="#p09" class="chip c-shrink">P09</a><span class="what">Re-score and confirm the call at Academic Board</span></li></ul></div>
+<div class="tday"><div class="tdate"><b>26 Mar</b><span>2027</span></div><ul><li><span class="kind review">Review</span><a href="#p06" class="chip c-shrink">P06</a><span class="what">Re-score and confirm the call at Academic Board</span></li></ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s5">
+    <div class="sec-title"><span class="n">5</span><h2 id="s5">When to re-score</h2><span class="hint">Pilots move through the eight Idea-to-Production stages. They are re-scored at four gates (gold), where new evidence arrives, and the call at each gate decides the move.</span></div>
+    <div class="scroll"><div class="stages">
+<div class="stg">
+  <div class="sh"><span class="sn">1</span><span class="sname">Idea</span><span class="sph">Explore</span></div>
+  <div class="sr"><span class="rs">No re-score</span></div>
+  <p class="does">Free to explore. No score needed.</p>
+  <p class="who">No one</p>
+  <div class="here"><a href="#p04" class="chip c-pause">P04</a></div>
+</div>
+<div class="stg gate">
+  <div class="sh"><span class="sn">2</span><span class="sname">Sandbox</span><span class="sph">Explore</span></div>
+  <div class="sr"><span class="rs yes">Re-score: Quick score</span><span class="when">Before filing the Build request</span></div>
+  <p class="does">Scale or Shrink: file the Build form at the level and tier the scores support. Pause: stay in Sandbox. Kill: stop; nothing to close.</p>
+  <p class="who">Digital Lead with the SLT sponsor</p>
+  <div class="here"><a href="#p07" class="chip c-shrink">P07</a></div>
+</div>
+<div class="stg">
+  <div class="sh"><span class="sn">3</span><span class="sname">Build</span><span class="sph">Build and rehearse</span></div>
+  <div class="sr"><span class="rs">No re-score</span></div>
+  <p class="does">Level and tier assigned; the scores carry forward.</p>
+  <p class="who">Digital Lead</p>
+  <div class="here"><a href="#p05" class="chip c-shrink">P05</a><a href="#p06" class="chip c-shrink">P06</a><a href="#p09" class="chip c-shrink">P09</a></div>
+</div>
+<div class="stg gate">
+  <div class="sh"><span class="sn">4</span><span class="sname">Staging</span><span class="sph">Build and rehearse</span></div>
+  <div class="sr"><span class="rs yes">Re-score: Quality and Risk</span><span class="when">Before leaving Staging</span></div>
+  <p class="does">A red card blocks the Pilot. Otherwise the pilot goes ahead.</p>
+  <p class="who">DPO and IT/Network Manager</p>
+  <div class="here"><span class="none">No pilots here</span></div>
+</div>
+<div class="stg gate">
+  <div class="sh"><span class="sn">5</span><span class="sname">Pilot</span><span class="sph">Production</span></div>
+  <div class="sr"><span class="rs yes">Re-score: Full score</span><span class="when">At the end, against a rule written in advance</span></div>
+  <p class="does">Scale: go to Production at the tier the evidence supports. Shrink: re-run narrower. Pause: hold until the blocker clears. Kill: Retire.</p>
+  <p class="who">Digital Lead and the sponsoring head of department; SLT sponsor signs</p>
+  <div class="here"><a href="#p03" class="chip c-pause">P03</a></div>
+</div>
+<div class="stg">
+  <div class="sh"><span class="sn">6</span><span class="sname">Production</span><span class="sph">Production</span></div>
+  <div class="sr"><span class="rs">No re-score</span><span class="when">Uses the Pilot score</span></div>
+  <p class="does">Signatories sign by level and tier (Governance tab).</p>
+  <p class="who">Signatories by level and tier</p>
+  <div class="here"><a href="#p01" class="chip c-shrink">P01</a></div>
+</div>
+<div class="stg gate">
+  <div class="sh"><span class="sn">7</span><span class="sname">Live</span><span class="sph">Production</span></div>
+  <div class="sr"><span class="rs yes">Re-score: Termly</span><span class="when">Each termly review, and after any incident or model change</span></div>
+  <p class="does">Scale: move up a tier, back through Staging. Shrink: fewer users or less scope. Pause: suspend use. Kill: Retire.</p>
+  <p class="who">SLT sponsor at the termly governance meeting</p>
+  <div class="here"><a href="#p02" class="chip c-shrink">P02</a><a href="#p08" class="chip c-shrink">P08</a></div>
+</div>
+<div class="stg">
+  <div class="sh"><span class="sn">8</span><span class="sname">Retire</span><span class="sph">Production</span></div>
+  <div class="sr"><span class="rs">No re-score</span></div>
+  <p class="does">Close it down and keep what was learned.</p>
+  <p class="who">Digital Lead; DPO confirms deletion</p>
+  <div class="here"><span class="none">No pilots here</span></div>
+</div>
+    </div></div>
+    <p class="panel outside"><b>Re-score outside the schedule when</b> a user group, dataset or integration goes beyond the pilot's level or tier; the AI model behind it changes; an incident, complaint or safeguarding concern arises; a termly review fails; or the SLT sponsor asks for it.</p>
+  </section>
+
+  <section aria-labelledby="s6">
+    <div class="sec-title"><span class="n">6</span><h2 id="s6">Who owns it and who decides</h2><span class="hint">Each pilot has one SLT sponsor who owns it and signs it off. Its forum takes the call at each review.</span></div>
+    <div class="owners">
+      <article class="forum"><h3>SLT</h3><p>Money, priorities and college-wide sign-off. The Principal signs anything used college-wide.</p></article>
+      <article class="forum"><h3>Academic Board</h3><p>Pedagogy and assessment: AI marking policy, coaching, the 4D frameworks and student AI tools. Led by the Deputy Headteacher Academic.</p><div class="ids"><a href="#p01" class="chip c-shrink">P01</a><a href="#p05" class="chip c-shrink">P05</a><a href="#p06" class="chip c-shrink">P06</a><a href="#p08" class="chip c-shrink">P08</a><a href="#p09" class="chip c-shrink">P09</a></div></article>
+      <article class="forum"><h3>AI Steering Group</h3><p>Governance gates: DPIAs, risk tiers, security and the app register. Digital Lead, DPO, IT/Network Manager and DSL.</p><div class="ids"><a href="#p02" class="chip c-shrink">P02</a><a href="#p03" class="chip c-pause">P03</a><a href="#p04" class="chip c-pause">P04</a><a href="#p07" class="chip c-shrink">P07</a></div></article>
+      <div class="sponsors"><h3>SLT sponsors</h3><ul><li><span><b>Deputy Headteacher (Academic)</b></span><span class="ids"><a href="#p01" class="chip c-shrink">P01</a><a href="#p05" class="chip c-shrink">P05</a><a href="#p09" class="chip c-shrink">P09</a></span></li><li><span><b>Deputy Headteacher (Pastoral)</b></span><span class="ids"><a href="#p02" class="chip c-shrink">P02</a></span></li><li><span><b>Assistant Headteacher (Pastoral)</b></span><span class="ids"><a href="#p03" class="chip c-pause">P03</a></span></li><li><span><b>Business Director</b></span><span class="ids"><a href="#p04" class="chip c-pause">P04</a><a href="#p07" class="chip c-shrink">P07</a></span></li><li><span><b>Headteacher</b></span><span class="ids"><a href="#p06" class="chip c-shrink">P06</a></span></li><li><span><b>Assistant Headteacher (Student Engagement)</b></span><span class="ids"><a href="#p08" class="chip c-shrink">P08</a></span></li></ul></div>
+    </div>
+    <ol class="steps">
+      <li><b>One sponsor per pilot</b> owns it and signs it off.</li>
+      <li><b>Re-score at four gates.</b> Scale goes on, Shrink narrows, Pause holds, Kill retires.</li>
+      <li><b>Other sign-offs follow level and tier</b>: DPO and IT/Network Manager from Level 2 or T2, the DHT Academic from Level 3 or T2, the Headteacher for Level 4 and all-staff or all-student use.</li>
+      <li><b>Stakeholders hear first.</b> Nothing widens before the people it affects are told.</li>
+      <li><b>Termly report.</b> Each sponsor reports KPIs, the latest scores and the call. Decisions go in the Decision log.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <div class="rules">
+      <span class="k">Updating the plan</span>
+      <p><span class="num">1</span><b>Change scores, evidence and the proposed call on the pilot's own tab.</b> The Summary and its map update themselves.</p>
+      <p><span class="num">2</span><b>Risks, communication and decisions</b> go in the RAID log, Comms plan and Decision log tabs. Each pilot tab shows its own rows.</p>
+      <p><span class="num">3</span><b>Dates are proposals.</b> Replace them with real meeting dates.</p>
+    </div>
+    <div class="src">
+      <span>This page is a snapshot of the school's internal pilot decision sheet on 9 October 2026. The sheet is the live record; when the two differ, the sheet is right.</span>
+      <span>A public page for staff. It names roles, not people, and holds no pupil or staff personal data. The evidence behind each score is in the internal sheet.</span>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('.fb');
+  var cards = document.querySelectorAll('.pilot');
+  var dots = document.querySelectorAll('.map a.pt');
+  var empty = document.getElementById('emptymsg');
+  function apply(f) {
+    var shown = 0;
+    cards.forEach(function (c) { var on = f === 'all' || c.dataset.call === f; c.hidden = !on; if (on) shown++; });
+    dots.forEach(function (d) { var on = f === 'all' || d.dataset.calls.split(' ').indexOf(f) > -1; d.classList.toggle('dim', !on); });
+    buttons.forEach(function (b) { var on = b.dataset.f === f; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    empty.hidden = shown > 0;
+  }
+  buttons.forEach(function (b) { b.addEventListener('click', function () { apply(b.dataset.f); try { localStorage.setItem('pilotFilter', b.dataset.f); } catch (e) {} }); });
+  dots.forEach(function (d) { d.addEventListener('click', function () { var id = d.getAttribute('href').slice(1); var c = document.getElementById(id); if (c && c.hidden) apply('all'); }); });
+  try { var saved = localStorage.getItem('pilotFilter'); if (saved && document.querySelector('.fb[data-f="' + saved + '"]:not(:disabled)')) apply(saved); } catch (e) {}
+})();
+</script>
+
+</body>
+</html>
